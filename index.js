@@ -1,7 +1,9 @@
 // through2 is a thin wrapper around node transform streams
 var through = require('through2');
 var prettyBytes = require('pretty-bytes');
-var gutil = require('gulp-util');
+var log = require('fancy-log');
+var chalk = require('chalk');
+var PluginError = require('plugin-error');
 var mkdirp = require('mkdirp');
 var rmdir = require('rmdir');
 var request = require('request');
@@ -10,7 +12,7 @@ var inspect = require('util').inspect;
 var fs = require('fs');
 var md5 = require('md5');
 
-var PluginError = gutil.PluginError;
+
 var AUTH_TOKEN;
 
 // Consts
@@ -93,7 +95,7 @@ function gulpPrefixer(options) {
 			tinypng(file, function(data) {
 				file.contents = data;
 				this.push(file);
-				gutil.log('gulp-tinypng: ', gutil.colors.green('✔ ') + file.relative + ' (saved ' +
+				  log('gulp-tinypng: ', chalk.green('✔ ') + file.relative + ' (saved ' +
 					prettyBytes(prevLength - data.length) + ' - ' + ((1 - data.length / prevLength) * 100).toFixed(0) + '%)');
 				return callback();
 			}.bind(this));
@@ -134,13 +136,13 @@ var tinyNewPng = function(file, cb) {
 				download(results.output.url, filename, function() {
 					fs.readFile(TEMP_DIR + filename, function(err, data) {
 						if (err) {
-							gutil.log('[error] :  gulp-tinypng - ', err);
+							log('[error] :  gulp-tinypng - ', err);
 						}
 						cb(data);
 					});
 				});
 			} else {
-				gutil.log('[error] : gulp-tinypng - ', results.message);
+				log('[error] : gulp-tinypng - ', results.message);
 			}
 		}
 	});
